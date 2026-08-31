@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Header({ onMenuClick, onSearch }) {
     const [searchText, setSearchText] = useState("");
+    const navigate = useNavigate();
 
     const handleSearch = (e) => {
         setSearchText(e.target.value);
@@ -33,9 +35,12 @@ function Header({ onMenuClick, onSearch }) {
                 <button>🔍</button>
             </div>
 
-            <button className="signin-button">
-                Sign In
-            </button>
+            <button
+             className="signin-button"
+             onClick={() => navigate("/login")}
+                    >
+                        Sign In
+                </button>
 
         </header>
     );

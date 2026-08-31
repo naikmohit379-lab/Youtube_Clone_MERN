@@ -136,3 +136,35 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-form {
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.auth-form input {
+    padding: 12px;
+    font-size: 16px;
+}
+
+.auth-form button {
+    padding: 12px;
+    cursor: pointer;
+}
+
+.auth-link {
+    cursor: pointer;
+    text-decoration: underline;
+}

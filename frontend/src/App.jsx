@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { Outlet } from "react-router-dom";
+
 import Header from "./components/Header.jsx";
 import Sidebar from "./components/Sidebar.jsx";
-import Home from "./pages/Home.jsx";
 
 function App() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -10,13 +11,15 @@ function App() {
     return (
         <>
             <Header
-                onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+                onMenuClick={() =>
+                    setSidebarOpen(!sidebarOpen)
+                }
                 onSearch={setSearchText}
             />
 
             <Sidebar isOpen={sidebarOpen} />
 
-            <Home searchText={searchText} />
+            <Outlet context={{ searchText }} />
         </>
     );
 }

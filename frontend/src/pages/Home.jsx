@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import api from "../services/api.js";
 import VideoCard from "../components/VideoCard.jsx";
 
-function Home({ searchText }) {
+function Home() {
+    const { searchText } = useOutletContext();
     const [videos, setVideos] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("All");
 
