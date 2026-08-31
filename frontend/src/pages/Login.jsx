@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 function Login() {
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const [formData, setFormData] = useState({
         email: "",
@@ -30,7 +32,7 @@ function Login() {
 
             const token = response.data.token;
 
-            localStorage.setItem("token", token);
+            login(token);
 
             setMessage("Login successful");
 

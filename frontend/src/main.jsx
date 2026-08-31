@@ -9,6 +9,12 @@ import App from "./App.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import ProtectedTest from "./pages/ProtectedTest.jsx";
+
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+
+import { AuthProvider } from "./context/AuthContext.jsx";
+import VideoPlayer from "./pages/VideoPlayer.jsx";
 
 import "./index.css";
 
@@ -19,22 +25,39 @@ const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: <Home searchText="" />
+                element: <Home />
             }
         ]
     },
+
     {
         path: "/login",
         element: <Login />
+    },{
+    path: "/video/:id",
+    element: <VideoPlayer />
     },
+
     {
         path: "/register",
         element: <Register />
+    },
+
+    {
+        element: <ProtectedRoute />,
+        children: [
+            {
+                path: "/protected",
+                element: <ProtectedTest />
+            }
+        ]
     }
 ]);
 
 createRoot(document.getElementById("root")).render(
     <StrictMode>
-        <RouterProvider router={router} />
+        <AuthProvider>
+            <RouterProvider router={router} />
+        </AuthProvider>
     </StrictMode>
 );

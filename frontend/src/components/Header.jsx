@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 
 function Header({ onMenuClick, onSearch }) {
+    const { isLoggedIn, logout } = useAuth();
     const [searchText, setSearchText] = useState("");
     const navigate = useNavigate();
 
@@ -35,12 +37,21 @@ function Header({ onMenuClick, onSearch }) {
                 <button>🔍</button>
             </div>
 
-            <button
-             className="signin-button"
-             onClick={() => navigate("/login")}
-                    >
-                        Sign In
-                </button>
+            {isLoggedIn ? (
+    <button
+        className="signin-button"
+        onClick={logout}
+    >
+        Logout
+    </button>
+) : (
+    <button
+        className="signin-button"
+        onClick={() => navigate("/login")}
+    >
+        Sign In
+    </button>
+)}
 
         </header>
     );
