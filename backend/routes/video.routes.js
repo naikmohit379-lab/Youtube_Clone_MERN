@@ -7,7 +7,8 @@ import {
     updateVideo,
     deleteVideo,
     likeVideo,
-    dislikeVideo
+    dislikeVideo,
+    viewVideo
 } from "../controllers/video.controller.js";
 
 import authMiddleware from "../middleware/auth.middleware.js";
@@ -27,5 +28,7 @@ router.delete("/:id", authMiddleware, deleteVideo);
 router.put("/:id/like", authMiddleware, likeVideo);
 
 router.put("/:id/dislike", authMiddleware, dislikeVideo);
+
+router.put("/:id/view", viewVideo);
 
 export default router;

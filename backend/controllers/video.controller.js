@@ -227,3 +227,37 @@ export const dislikeVideo = async (req, res) => {
         });
     }
 };
+export const viewVideo = async (req, res) => {
+    try {
+        const video = await Video.findByIdAndUpdate(
+            req.params.id,
+            {
+                $inc: { views: 1 }
+            },
+            {
+                new: true
+            }
+        );
+
+        if (!video) {
+            return res.status(404).json({
+                message: "Video not found"
+            });
+        }
+
+        console.log("VIEW UPDATED:", video.views);
+
+        res.status(200).json({
+            message: "Video view counted successfully",
+            views: video.views
+        });
+
+    } catch (error) {
+        console.log("VIEW ERROR:", error);
+
+        res.status(500).json({
+            message: "Failed to count video view",
+            error: error.message
+        });
+    }
+};
