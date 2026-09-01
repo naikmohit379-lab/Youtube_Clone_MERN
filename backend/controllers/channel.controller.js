@@ -89,3 +89,48 @@ export const getChannel = async (req, res) => {
         });
     }
 };
+
+export const subscribeChannel = async (req, res) => {
+    try {
+        const channel = await Channel.findById(req.params.id);
+
+        if (!channel) {
+            return res.status(404).json({
+                message: "Channel not found"
+            });
+        }
+
+        if (channel.owner.toString() === req.userId.toString()) {
+            return res.status(400).json({
+                message: "You cannot subscribe to your own channel"
+            });
+        }
+
+        const alreadySubscribed = channel.subscriberIds.some(
+            (subscriberId) =>
+                subscriberId.toString() === req.userId.toString()
+        );
+
+        if (alreadySubscribed) {
+            return res.status(400).json({
+                message: "Already subscribed to this channel"
+            });
+        }
+
+        channel.subscriberIds.push(req.userId);
+        channel.subscribers += 1;
+
+        await channel.save();
+
+        res.status(200).json({
+            message: "Subscribed successfully",
+            subscribers: channel.subscribers
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to subscribe",
+            error: error.message
+        });
+    }
+};

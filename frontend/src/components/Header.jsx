@@ -8,13 +8,8 @@ function Header({ onMenuClick, onSearch }) {
     const navigate = useNavigate();
 
     const handleSearch = (e) => {
-        const value = e.target.value;
-
-        setSearchText(value);
-
-        if (onSearch) {
-            onSearch(value);
-        }
+        setSearchText(e.target.value);
+        onSearch(e.target.value);
     };
 
     return (
@@ -29,33 +24,29 @@ function Header({ onMenuClick, onSearch }) {
                     ☰
                 </button>
 
-                <h2>YouTube Clone</h2>
+                <h2
+                    className="home-logo"
+                    onClick={() => navigate("/")}
+                >
+                    YouTube Clone
+                </h2>
 
             </div>
-
 
             <div className="search-container">
 
                 <input
                     type="text"
-                    placeholder="Search videos..."
+                    placeholder="Search"
                     value={searchText}
                     onChange={handleSearch}
                 />
 
-                <button
-                    type="button"
-                    onClick={() => {
-                        if (onSearch) {
-                            onSearch(searchText);
-                        }
-                    }}
-                >
+                <button>
                     🔍
                 </button>
 
             </div>
-
 
             {isLoggedIn ? (
 

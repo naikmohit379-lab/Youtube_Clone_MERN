@@ -1060,3 +1060,83 @@ body {
         font-size: 13px;
     }
 }
+
+/* =========================
+   HOME LOGO
+========================= */
+
+.home-logo {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.home-logo:hover {
+    transform: scale(1.03);
+}
+
+
+/* =========================
+   CHANNEL SUBSCRIBE
+========================= */
+
+.channel-subscribe-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.channel-subscribe-section .subscriber-count {
+    margin: 0;
+}
+
+.subscribe-button {
+    background: #ff0000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.subscribe-button:hover {
+    background: #cc0000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.subscribe-button:active {
+    transform: scale(0.96);
+}
+
+.subscribe-button:disabled {
+    cursor: default;
+}
+
+.subscribe-button.subscribed {
+    background: #333;
+}
+
+.subscribe-button.subscribed:hover {
+    background: #333;
+    transform: none;
+    box-shadow: none;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+    .channel-subscribe-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+}

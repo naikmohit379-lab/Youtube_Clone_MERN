@@ -26,7 +26,14 @@ const channelSchema = new mongoose.Schema(
         subscribers: {
             type: Number,
             default: 0
-        }
+        },
+
+        subscriberIds: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
+            }
+        ]
     },
     {
         timestamps: true

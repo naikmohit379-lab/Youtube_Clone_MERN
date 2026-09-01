@@ -2,17 +2,19 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 import VideoCard from "../components/VideoCard.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 function Channel() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { isLoggedIn } = useAuth();
 
     const [channel, setChannel] = useState(null);
     const [videos, setVideos] = useState([]);
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
+    const [subscribed, setSubscribed] = useState(false);
 
-    // Fetch channel and its videos
     const fetchChannel = async () => {
         try {
             const channelResponse = await api.get(
@@ -43,12 +45,44 @@ function Channel() {
         }
     };
 
-    // Load channel when page opens
     useEffect(() => {
         fetchChannel();
     }, [id]);
 
-    // Delete video
+    const handleSubscribe = async () => {
+
+        if (!isLoggedIn) {
+            navigate("/login");
+            return;
+        }
+
+        try {
+            const response = await api.put(
+                `/channels/${id}/subscribe`
+            );
+
+            setChannel((previousChannel) => ({
+                ...previousChannel,
+                subscribers: response.data.subscribers
+            }));
+
+            setSubscribed(true);
+
+            setMessage("Subscribed successfully");
+
+        } catch (error) {
+            console.log(
+                "SUBSCRIBE ERROR:",
+                error
+            );
+
+            setMessage(
+                error.response?.data?.message ||
+                "Failed to subscribe"
+            );
+        }
+    };
+
     const handleDelete = async (videoId) => {
         const confirmDelete = window.confirm(
             "Are you sure you want to delete this video?"
@@ -110,6 +144,7 @@ function Channel() {
         <main className="channel-page">
 
             {/* Channel information */}
+
             <div className="channel-header">
 
                 <h1>
@@ -120,15 +155,42 @@ function Channel() {
                     {channel.description}
                 </p>
 
-                <p className="subscriber-count">
-                    Subscribers:{" "}
-                    {channel.subscribers}
-                </p>
+                <div className="channel-subscribe-section">
+
+                    <p className="subscriber-count">
+                        {channel.subscribers} subscribers
+                    </p>
+
+                    <button
+                        className={
+                            subscribed
+                                ? "subscribe-button subscribed"
+                                : "subscribe-button"
+                        }
+                        onClick={handleSubscribe}
+                        disabled={subscribed}
+                    >
+                        {subscribed
+                            ? "Subscribed"
+                            : "Subscribe"}
+                    </button>
+
+                </div>
 
             </div>
 
 
+            {/* Message */}
+
+            {message && (
+                <p className="channel-message">
+                    {message}
+                </p>
+            )}
+
+
             {/* Videos heading */}
+
             <div className="channel-video-header">
 
                 <h2>
@@ -149,15 +211,8 @@ function Channel() {
             </div>
 
 
-            {/* Success / error message */}
-            {message && (
-                <p className="channel-message">
-                    {message}
-                </p>
-            )}
-
-
             {/* Videos */}
+
             <div className="video-grid">
 
                 {videos.length === 0 ? (
@@ -179,7 +234,6 @@ function Channel() {
                                 video={video}
                             />
 
-                            {/* Video actions */}
                             <div className="video-card-actions">
 
                                 <button
