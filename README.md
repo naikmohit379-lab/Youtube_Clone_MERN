@@ -133,7 +133,9 @@ youtube-clone/
 │
 └── README.md
 
-Installation
+```
+
+## Installation
 
 1. Clone the Repository
 
@@ -195,21 +197,21 @@ http://localhost:5173
 
 Open the URL displayed by Vite in your browser.
 
-API Endpoints
+## API Endpoints
 
 The application uses REST APIs for communication between the frontend and backend.
 
-Authentication
+## Authentication
 
 POST /api/auth/register
 POST /api/auth/login
 
-Channels
+## Channels
 
 POST /api/channels
 GET  /api/channels/:id
 
-Videos
+## Videos
 
 POST   /api/videos
 GET    /api/videos
@@ -220,18 +222,18 @@ PUT    /api/videos/:id/like
 PUT    /api/videos/:id/dislike
 PUT    /api/videos/:id/view
 
-Comments
+## Comments
 
 POST   /api/comments
 GET    /api/comments/:videoId
 PUT    /api/comments/:id
 DELETE /api/comments/:id
 
-Authentication
+## Authentication
 
 The application uses JWT authentication.
 
-Users can:
+## Users can:
 
 Register an account
 
@@ -265,7 +267,7 @@ Video Management
 
 Authenticated users can create videos for their own channels.
 
-Users can:
+## Users can:
 
 Add a video title
 
@@ -287,7 +289,7 @@ Example:
 
 https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4
 
-Search and Filtering
+## Search and Filtering
 
 The home page provides video search and category filtering.
 
@@ -297,7 +299,7 @@ Example:
 
 JavaScript
 
-The application also provides category filters:
+## The application also provides category filters:
 
 All
 Music
@@ -309,7 +311,7 @@ Education
 
 Search and category filters can be used together.
 
-Video Player
+## Video Player
 
 The video player page provides:
 
@@ -331,7 +333,7 @@ Comments
 
 Users can interact with the video through the available controls.
 
-Comments
+## Comments
 
 Authenticated users can add comments to videos.
 
@@ -347,23 +349,23 @@ Delete their own comments
 
 Comments display the username of the user who created them.
 
-Channels
+## Channels
 
 Users can create their own channel.
 
 A channel contains:
 
-Channel name
+-Channel name
 
-Channel description
+-Channel description
 
-Subscriber count
+-Subscriber count
 
-Channel videos
+-Channel videos
 
 Users can create videos only for their own channel.
 
-Pages
+## Pages
 
 The application contains the following major pages:
 
@@ -384,11 +386,11 @@ The application contains the following major pages:
 └── /create-channel
     └── Create Channel
 
-Running the Complete Application
+## Running the Complete Application
 
 The backend and frontend should be running at the same time.
 
-Terminal 1 - Backend
+-Terminal 1 - Backend
 
 cd backend
 npm install
@@ -398,7 +400,7 @@ Backend:
 
 http://localhost:5000
 
-Terminal 2 - Frontend
+-Terminal 2 - Frontend
 
 cd frontend
 npm install
@@ -408,92 +410,95 @@ Frontend:
 
 http://localhost:5173
 
-Responsive Design
+## Responsive Design
 
 The application is designed to work across different screen sizes.
 
-Desktop
+1.Desktop
 
 The video grid displays multiple videos in a row.
 
-Tablet
+2.Tablet
 
 The video grid adjusts to fewer columns.
 
-Mobile
+3.Mobile
 
 The video grid changes to a single-column layout and the header/search area adjusts for smaller screens.
 
-UI Design
+## UI Design
 
 The application uses a YouTube-inspired design with:
 
-Clean white interface
+-Clean white interface
 
-Rounded buttons
+-Rounded buttons
 
-Search bar
+-Search bar
 
-Category filter buttons
+-Category filter buttons
 
-Video cards
+-Video cards
 
-Responsive layouts
+-Responsive layouts
 
-Hover effects
+-Hover effects
 
-Smooth transitions
+-Smooth transitions
 
-Page animations
+-Page animations
 
-Git Version Control
+## Git Version Control
 
 Git is used to manage the project source code and development history.
 
-Check the current Git status:
+-Check the current Git status:
 
 git status
 
-View the commit history:
+-View the commit history:
 
 git log --oneline
 
-Count the total number of commits:
+-Count the total number of commits:
 
 git rev-list --count HEAD
 
-Create a commit:
+-Create a commit:
 
 git add .
 git commit -m "Your commit message"
 
-Future Improvements
+## Future Improvements
 
-Possible future improvements include:
+-Possible future improvements include:
 
-Real video file upload
+-Real video file upload
 
-User profile pages
+-User profile pages
 
-Subscribe/unsubscribe functionality
+-Subscribe/unsubscribe functionality
 
-Recommended videos
+-Recommended videos
 
-Video playlists
+-Video playlists
 
-Video watch history
+-Video watch history
 
-Advanced search
+-Advanced search
 
-Pagination
+-Pagination
 
-Dark mode
+-Dark mode
 
-Notifications
+-Notifications
 
-Improved video player controls
+-Improved video player controls
 
-Author
+##GitHub Repo
+-https://github.com/naikmohit379-lab/Youtube_Clone_MERN
+
+## Author
 
 Mohith Naik
 
