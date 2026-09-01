@@ -9,37 +9,56 @@ function VideoPlayer() {
     const viewCounted = useRef(false);
 
     const [video, setVideo] = useState(null);
+    const [channel, setChannel] = useState(null);
     const [comments, setComments] = useState([]);
-    const [commentText, setCommentText] = useState("");
 
+    const [commentText, setCommentText] = useState("");
     const [error, setError] = useState("");
     const [commentError, setCommentError] = useState("");
-    const [subscribeError, setSubscribeError] = useState("");
 
     const [subscribed, setSubscribed] = useState(false);
+    const [isOwner, setIsOwner] = useState(false);
     const [subscribeLoading, setSubscribeLoading] = useState(false);
 
 
-    // =========================
-    // FETCH VIDEO
-    // =========================
+    // Get user ID from token
+    const getUserIdFromToken = () => {
 
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            return null;
+        }
+
+        try {
+
+            const payload = JSON.parse(
+                atob(token.split(".")[1])
+            );
+
+            return payload.userId;
+
+        } catch (error) {
+
+            console.log(
+                "TOKEN ERROR:",
+                error
+            );
+
+            return null;
+        }
+    };
+
+
+    // Fetch video
     useEffect(() => {
+
         const fetchVideo = async () => {
+
             try {
-                const response = await api.get(
-                    `/videos/${id}`
-                );
 
-                console.log(
-                    "VIDEO ID:",
-                    id
-                );
-
-                console.log(
-                    "VIDEO RESPONSE:",
-                    response.data
-                );
+                const response =
+                    await api.get(`/videos/${id}`);
 
                 setVideo(response.data);
 
@@ -48,16 +67,6 @@ function VideoPlayer() {
                 console.log(
                     "VIDEO FETCH ERROR:",
                     error
-                );
-
-                console.log(
-                    "STATUS:",
-                    error.response?.status
-                );
-
-                console.log(
-                    "DATA:",
-                    error.response?.data
                 );
 
                 setError(
@@ -72,10 +81,92 @@ function VideoPlayer() {
     }, [id]);
 
 
-    // =========================
-    // COUNT VIDEO VIEW
-    // =========================
+    // Fetch channel and subscription status
+    useEffect(() => {
 
+        const fetchChannel = async () => {
+
+            if (!video?.channel?._id) {
+                return;
+            }
+
+            try {
+
+                const response =
+                    await api.get(
+                        `/channels/${video.channel._id}`
+                    );
+
+                const channelData =
+                    response.data;
+
+                setChannel(channelData);
+
+
+                // Get logged-in user ID
+                const loggedInUserId =
+                    getUserIdFromToken();
+
+
+                // Get channel owner ID
+                const ownerId =
+                    channelData.owner?._id ||
+                    channelData.owner;
+
+
+                // Check if current user is owner
+                if (
+                    loggedInUserId &&
+                    ownerId &&
+                    loggedInUserId.toString() ===
+                    ownerId.toString()
+                ) {
+
+                    setIsOwner(true);
+
+                } else {
+
+                    setIsOwner(false);
+                }
+
+
+                // Check if user is already subscribed
+                if (
+                    loggedInUserId &&
+                    channelData.subscriberIds
+                ) {
+
+                    const alreadySubscribed =
+                        channelData.subscriberIds.some(
+                            (subscriberId) =>
+                                subscriberId.toString() ===
+                                loggedInUserId.toString()
+                        );
+
+                    setSubscribed(
+                        alreadySubscribed
+                    );
+
+                } else {
+
+                    setSubscribed(false);
+                }
+
+            } catch (error) {
+
+                console.log(
+                    "CHANNEL FETCH ERROR:",
+                    error
+                );
+            }
+        };
+
+        fetchChannel();
+
+    }, [video]);
+
+
+    // Count video view only once
     useEffect(() => {
 
         if (viewCounted.current) {
@@ -88,19 +179,18 @@ function VideoPlayer() {
 
             try {
 
-                const response = await api.put(
-                    `/videos/${id}/view`
-                );
+                const response =
+                    await api.put(
+                        `/videos/${id}/view`
+                    );
 
-                console.log(
-                    "VIEW RESPONSE:",
-                    response.data
+                setVideo(
+                    (previousVideo) => ({
+                        ...previousVideo,
+                        views:
+                            response.data.views
+                    })
                 );
-
-                setVideo((previousVideo) => ({
-                    ...previousVideo,
-                    views: response.data.views
-                }));
 
             } catch (error) {
 
@@ -117,19 +207,17 @@ function VideoPlayer() {
     }, [id]);
 
 
-    // =========================
-    // FETCH COMMENTS
-    // =========================
-
+    // Fetch comments
     useEffect(() => {
 
         const fetchComments = async () => {
 
             try {
 
-                const response = await api.get(
-                    `/comments/${id}`
-                );
+                const response =
+                    await api.get(
+                        `/comments/${id}`
+                    );
 
                 setComments(response.data);
 
@@ -147,100 +235,112 @@ function VideoPlayer() {
     }, [id]);
 
 
-    // =========================
-    // LIKE VIDEO
-    // =========================
-
+    // Like video
     const handleLike = async () => {
 
         try {
 
-            const response = await api.put(
-                `/videos/${id}/like`
-            );
+            const response =
+                await api.put(
+                    `/videos/${id}/like`
+                );
 
-            setVideo((previousVideo) => ({
-                ...previousVideo,
-                likes: response.data.likes,
-                dislikes: response.data.dislikes
-            }));
+            setVideo(
+                (previousVideo) => ({
+                    ...previousVideo,
+                    likes:
+                        response.data.likes,
+                    dislikes:
+                        response.data.dislikes
+                })
+            );
 
         } catch (error) {
 
-            console.log(
-                "LIKE ERROR:",
-                error
-            );
+            console.log(error);
         }
     };
 
 
-    // =========================
-    // DISLIKE VIDEO
-    // =========================
-
+    // Dislike video
     const handleDislike = async () => {
 
         try {
 
-            const response = await api.put(
-                `/videos/${id}/dislike`
-            );
+            const response =
+                await api.put(
+                    `/videos/${id}/dislike`
+                );
 
-            setVideo((previousVideo) => ({
-                ...previousVideo,
-                likes: response.data.likes,
-                dislikes: response.data.dislikes
-            }));
+            setVideo(
+                (previousVideo) => ({
+                    ...previousVideo,
+                    likes:
+                        response.data.likes,
+                    dislikes:
+                        response.data.dislikes
+                })
+            );
 
         } catch (error) {
 
-            console.log(
-                "DISLIKE ERROR:",
-                error
-            );
+            console.log(error);
         }
     };
 
 
-    // =========================
-    // SUBSCRIBE TO CHANNEL
-    // =========================
-
+    // Subscribe to channel
     const handleSubscribe = async () => {
 
-        if (!video?.channel?._id) {
+        if (!channel?._id) {
             return;
         }
 
+
+        // Owner cannot subscribe
+        if (isOwner) {
+            return;
+        }
+
+
+        // Already subscribed
         if (subscribed) {
             return;
         }
 
+
         try {
 
             setSubscribeLoading(true);
-            setSubscribeError("");
 
-            const response = await api.put(
-                `/channels/${video.channel._id}/subscribe`
-            );
+            const response =
+                await api.put(
+                    `/channels/${channel._id}/subscribe`
+                );
 
-            console.log(
-                "SUBSCRIBE RESPONSE:",
-                response.data
-            );
 
-            setVideo((previousVideo) => ({
-                ...previousVideo,
-
-                channel: {
-                    ...previousVideo.channel,
-
+            // Update channel subscriber count
+            setChannel(
+                (previousChannel) => ({
+                    ...previousChannel,
                     subscribers:
                         response.data.subscribers
-                }
-            }));
+                })
+            );
+
+
+            // Update video channel subscriber count
+            setVideo(
+                (previousVideo) => ({
+                    ...previousVideo,
+                    channel: {
+                        ...previousVideo.channel,
+                        subscribers:
+                            response.data.subscribers
+                    }
+                })
+            );
+
 
             setSubscribed(true);
 
@@ -252,11 +352,6 @@ function VideoPlayer() {
                 error.message
             );
 
-            setSubscribeError(
-                error.response?.data?.message ||
-                "Failed to subscribe"
-            );
-
         } finally {
 
             setSubscribeLoading(false);
@@ -264,10 +359,7 @@ function VideoPlayer() {
     };
 
 
-    // =========================
-    // ADD COMMENT
-    // =========================
-
+    // Add comment
     const handleAddComment = async (e) => {
 
         e.preventDefault();
@@ -280,18 +372,21 @@ function VideoPlayer() {
 
             setCommentError("");
 
-            const response = await api.post(
-                "/comments",
-                {
-                    video: id,
-                    text: commentText.trim()
-                }
-            );
+            const response =
+                await api.post(
+                    "/comments",
+                    {
+                        video: id,
+                        text: commentText.trim()
+                    }
+                );
 
-            setComments((previousComments) => [
-                ...previousComments,
-                response.data.comment
-            ]);
+            setComments(
+                (previousComments) => [
+                    ...previousComments,
+                    response.data.comment
+                ]
+            );
 
             setCommentText("");
 
@@ -310,18 +405,14 @@ function VideoPlayer() {
     };
 
 
-    // =========================
-    // DELETE COMMENT
-    // =========================
-
+    // Delete comment
     const handleDeleteComment = async (commentId) => {
 
-        const confirmDelete =
-            window.confirm(
+        if (
+            !window.confirm(
                 "Are you sure you want to delete this comment?"
-            );
-
-        if (!confirmDelete) {
+            )
+        ) {
             return;
         }
 
@@ -331,11 +422,12 @@ function VideoPlayer() {
                 `/comments/${commentId}`
             );
 
-            setComments((previousComments) =>
-                previousComments.filter(
-                    (comment) =>
-                        comment._id !== commentId
-                )
+            setComments(
+                (previousComments) =>
+                    previousComments.filter(
+                        (comment) =>
+                            comment._id !== commentId
+                    )
             );
 
         } catch (error) {
@@ -353,19 +445,17 @@ function VideoPlayer() {
     };
 
 
-    // =========================
-    // EDIT COMMENT
-    // =========================
-
+    // Edit comment
     const handleEditComment = async (
         commentId,
         oldText
     ) => {
 
-        const newText = window.prompt(
-            "Edit your comment:",
-            oldText
-        );
+        const newText =
+            window.prompt(
+                "Edit your comment:",
+                oldText
+            );
 
         if (!newText || !newText.trim()) {
             return;
@@ -373,20 +463,22 @@ function VideoPlayer() {
 
         try {
 
-            const response = await api.put(
-                `/comments/${commentId}`,
-                {
-                    text: newText.trim()
-                }
-            );
+            const response =
+                await api.put(
+                    `/comments/${commentId}`,
+                    {
+                        text: newText.trim()
+                    }
+                );
 
-            setComments((previousComments) =>
-                previousComments.map(
-                    (comment) =>
-                        comment._id === commentId
-                            ? response.data.comment
-                            : comment
-                )
+            setComments(
+                (previousComments) =>
+                    previousComments.map(
+                        (comment) =>
+                            comment._id === commentId
+                                ? response.data.comment
+                                : comment
+                    )
             );
 
         } catch (error) {
@@ -404,13 +496,11 @@ function VideoPlayer() {
     };
 
 
-    // =========================
-    // ERROR
-    // =========================
-
+    // Error
     if (error) {
 
         return (
+
             <main className="video-page">
 
                 <p className="error-message">
@@ -422,13 +512,11 @@ function VideoPlayer() {
     }
 
 
-    // =========================
-    // LOADING
-    // =========================
-
+    // Loading
     if (!video) {
 
         return (
+
             <main className="video-page">
 
                 <p className="loading-message">
@@ -445,9 +533,7 @@ function VideoPlayer() {
         <main className="video-page">
 
 
-            {/* =========================
-                VIDEO PLAYER
-            ========================= */}
+            {/* Video Player */}
 
             <div className="player-container">
 
@@ -463,24 +549,21 @@ function VideoPlayer() {
             </div>
 
 
-            {/* =========================
-                VIDEO TITLE
-            ========================= */}
+            {/* Video Title */}
 
             <h1 className="video-title">
                 {video.title}
             </h1>
 
 
-            {/* =========================
-                VIEWS + LIKE/DISLIKE
-            ========================= */}
+            {/* Views + Actions */}
 
             <div className="video-meta">
 
                 <p className="video-views">
                     {video.views} views
                 </p>
+
 
                 <div className="video-actions">
 
@@ -490,6 +573,7 @@ function VideoPlayer() {
                     >
                         👍 {video.likes}
                     </button>
+
 
                     <button
                         className="action-button"
@@ -503,51 +587,38 @@ function VideoPlayer() {
             </div>
 
 
-            {/* =========================
-                CHANNEL INFORMATION
-            ========================= */}
+            {/* Channel Information */}
 
             <div className="channel-info">
 
 
-                {/* CLICKABLE CHANNEL */}
-
                 <div
                     className="channel-details"
-                    onClick={() => {
-
-                        if (video.channel?._id) {
-
-                            navigate(
-                                `/channel/${video.channel._id}`
-                            );
-                        }
-
-                    }}
+                    onClick={() =>
+                        navigate(
+                            `/channel/${video.channel?._id}`
+                        )
+                    }
                 >
-
-                    {/* CHANNEL AVATAR */}
 
                     <div className="channel-avatar">
 
                         {video.channel?.channelName
                             ?.charAt(0)
-                            .toUpperCase() || "C"}
+                            .toUpperCase()}
 
                     </div>
 
 
-                    {/* CHANNEL NAME */}
-
-                    <div className="channel-text">
+                    <div>
 
                         <h3>
-                            {video.channel?.channelName ||
-                                "Unknown Channel"}
+                            {video.channel?.channelName}
                         </h3>
 
+
                         <p>
-                            {video.channel?.subscribers || 0}
+                            {channel?.subscribers || 0}
                             {" "}
                             subscribers
                         </p>
@@ -557,50 +628,46 @@ function VideoPlayer() {
                 </div>
 
 
-                {/* SUBSCRIBE BUTTON */}
+                {/* Owner sees Your Channel */}
 
-                <button
-                    className={
-                        subscribed
-                            ? "subscribe-button subscribed"
-                            : "subscribe-button"
-                    }
-                    onClick={handleSubscribe}
-                    disabled={
-                        subscribeLoading ||
-                        subscribed
-                    }
-                >
+                {isOwner ? (
 
-                    {subscribeLoading
+                    <button
+                        className="subscribe-button own-channel-button"
+                        disabled
+                    >
+                        Your Channel
+                    </button>
 
-                        ? "Subscribing..."
+                ) : (
 
-                        : subscribed
+                    <button
+                        className={
+                            subscribed
+                                ? "subscribe-button subscribed"
+                                : "subscribe-button"
+                        }
+                        onClick={handleSubscribe}
+                        disabled={
+                            subscribeLoading ||
+                            subscribed
+                        }
+                    >
 
-                            ? "Subscribed"
+                        {subscribeLoading
+                            ? "Subscribing..."
+                            : subscribed
+                                ? "Subscribed"
+                                : "Subscribe"}
 
-                            : "Subscribe"}
+                    </button>
 
-                </button>
+                )}
 
             </div>
 
 
-            {/* SUBSCRIBE ERROR */}
-
-            {subscribeError && (
-
-                <p className="subscribe-error">
-                    {subscribeError}
-                </p>
-
-            )}
-
-
-            {/* =========================
-                DESCRIPTION
-            ========================= */}
+            {/* Description */}
 
             <div className="description">
 
@@ -615,9 +682,7 @@ function VideoPlayer() {
             </div>
 
 
-            {/* =========================
-                COMMENTS
-            ========================= */}
+            {/* Comments */}
 
             <section className="comments-section">
 
@@ -625,8 +690,6 @@ function VideoPlayer() {
                     Comments ({comments.length})
                 </h2>
 
-
-                {/* COMMENT ERROR */}
 
                 {commentError && (
 
@@ -636,8 +699,6 @@ function VideoPlayer() {
 
                 )}
 
-
-                {/* COMMENT FORM */}
 
                 <form
                     className="comment-form"
@@ -656,14 +717,13 @@ function VideoPlayer() {
                         }
                     />
 
+
                     <button type="submit">
                         Comment
                     </button>
 
                 </form>
 
-
-                {/* COMMENTS LIST */}
 
                 <div className="comments-list">
 
@@ -687,12 +747,11 @@ function VideoPlayer() {
                                         "User"}
                                 </strong>
 
+
                                 <p>
                                     {comment.text}
                                 </p>
 
-
-                                {/* EDIT */}
 
                                 <button
                                     className="comment-edit"
@@ -706,8 +765,6 @@ function VideoPlayer() {
                                     Edit
                                 </button>
 
-
-                                {/* DELETE */}
 
                                 <button
                                     className="comment-delete"
