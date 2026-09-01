@@ -319,16 +319,18 @@ function Channel() {
                 </h2>
 
                 {/* Create video */}
-                <button
-                    className="create-video-button"
-                    onClick={() =>
-                        navigate(
-                            `/channel/${id}/create-video`
-                        )
-                    }
-                >
-                    + Create Video
-                </button>
+                {isOwner && (
+    <button
+        className="create-video-button"
+        onClick={() =>
+            navigate(
+                `/channel/${id}/create-video`
+            )
+        }
+    >
+        + Create Video
+    </button>
+)}
 
             </div>
 
@@ -355,33 +357,31 @@ function Channel() {
                             />
 
                             {/* Video actions */}
-                            <div className="video-card-actions">
+                            {isOwner && (
+    <div className="video-card-actions">
 
-                                {/* Edit video */}
-                                <button
-                                    className="edit-button"
-                                    onClick={() =>
-                                        navigate(
-                                            `/video/${video._id}/edit`
-                                        )
-                                    }
-                                >
-                                    ✏️ Edit
-                                </button>
+        <button
+            className="edit-button"
+            onClick={() =>
+                navigate(
+                    `/video/${video._id}/edit`
+                )
+            }
+        >
+            ✏️ Edit
+        </button>
 
-                                {/* Delete video */}
-                                <button
-                                    className="delete-button"
-                                    onClick={() =>
-                                        handleDelete(
-                                            video._id
-                                        )
-                                    }
-                                >
-                                    🗑️ Delete
-                                </button>
+        <button
+            className="delete-button"
+            onClick={() =>
+                handleDelete(video._id)
+            }
+        >
+            🗑️ Delete
+        </button>
 
-                            </div>
+    </div>
+)}
 
                         </div>
 
