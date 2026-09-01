@@ -17,6 +17,7 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import VideoPlayer from "./pages/VideoPlayer.jsx";
 import Channel from "./pages/Channel.jsx";
 import CreateChannel from "./pages/CreateChannel.jsx";
+import CreateVideo from "./pages/CreateVideo.jsx";
 
 import "./index.css";
 
@@ -59,6 +60,10 @@ const router = createBrowserRouter([
                 path: "/create-channel",
                 element: <CreateChannel />
             },
+            {
+    path: "/channel/:id/create-video",
+    element: <CreateVideo />
+},
         ]
     }
 ]);

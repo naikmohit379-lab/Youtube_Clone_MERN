@@ -271,3 +271,37 @@ body {
     padding: 12px;
     cursor: pointer;
 }
+.create-video-page {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.video-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.video-form input,
+.video-form textarea {
+    padding: 12px;
+    font-size: 16px;
+}
+
+.video-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.video-form button,
+.channel-video-header button {
+    padding: 12px 20px;
+    cursor: pointer;
+}
+
+.channel-video-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

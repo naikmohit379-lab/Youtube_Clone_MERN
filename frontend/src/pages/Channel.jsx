@@ -67,7 +67,20 @@ function Channel() {
 
             </div>
 
-            <h2>Videos</h2>
+            <div className="channel-video-header">
+
+    <h2>Videos</h2>
+
+    <button
+        onClick={() =>
+            window.location.href =
+                `/channel/${id}/create-video`
+        }
+    >
+        Create Video
+    </button>
+
+</div>
 
             <div className="video-grid">
 
