@@ -18,6 +18,7 @@ import VideoPlayer from "./pages/VideoPlayer.jsx";
 import Channel from "./pages/Channel.jsx";
 import CreateChannel from "./pages/CreateChannel.jsx";
 import CreateVideo from "./pages/CreateVideo.jsx";
+import EditVideo from "./pages/EditVideo.jsx";
 
 import "./index.css";
 
@@ -63,6 +64,9 @@ const router = createBrowserRouter([
             {
     path: "/channel/:id/create-video",
     element: <CreateVideo />
+},{
+    path: "/video/:id/edit",
+    element: <EditVideo />
 },
         ]
     }
