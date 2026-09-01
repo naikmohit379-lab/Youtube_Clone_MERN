@@ -14,6 +14,37 @@ function Channel() {
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
     const [subscribed, setSubscribed] = useState(false);
+    const [isOwner, setIsOwner] = useState(false);
+
+
+    // =========================
+    // GET LOGGED-IN USER ID
+    // =========================
+
+    const getUserIdFromToken = () => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            return null;
+        }
+
+        try {
+            const payload = JSON.parse(
+                atob(token.split(".")[1])
+            );
+
+            return payload.userId;
+
+        } catch (error) {
+            console.log("TOKEN ERROR:", error);
+            return null;
+        }
+    };
+
+
+    // =========================
+    // FETCH CHANNEL
+    // =========================
 
     const fetchChannel = async () => {
         try {
@@ -21,8 +52,51 @@ function Channel() {
                 `/channels/${id}`
             );
 
-            setChannel(channelResponse.data);
+            const channelData = channelResponse.data;
 
+            setChannel(channelData);
+
+
+            // Get logged-in user ID
+            const loggedInUserId =
+                getUserIdFromToken();
+
+
+            // Get channel owner ID
+            const ownerId =
+                channelData.owner?._id ||
+                channelData.owner;
+
+
+            // Check if logged-in user is owner
+            if (
+                loggedInUserId &&
+                ownerId &&
+                loggedInUserId === ownerId
+            ) {
+                setIsOwner(true);
+            } else {
+                setIsOwner(false);
+            }
+
+
+            // Check if user already subscribed
+            if (
+                loggedInUserId &&
+                channelData.subscriberIds
+            ) {
+                const alreadySubscribed =
+                    channelData.subscriberIds.some(
+                        (subscriberId) =>
+                            subscriberId.toString() ===
+                            loggedInUserId.toString()
+                    );
+
+                setSubscribed(alreadySubscribed);
+            }
+
+
+            // Fetch videos
             const videoResponse = await api.get(
                 "/videos"
             );
@@ -36,7 +110,10 @@ function Channel() {
             setVideos(channelVideos);
 
         } catch (error) {
-            console.log("CHANNEL ERROR:", error);
+            console.log(
+                "CHANNEL ERROR:",
+                error
+            );
 
             setError(
                 error.response?.data?.message ||
@@ -45,14 +122,29 @@ function Channel() {
         }
     };
 
+
+    // =========================
+    // LOAD CHANNEL
+    // =========================
+
     useEffect(() => {
         fetchChannel();
     }, [id]);
+
+
+    // =========================
+    // SUBSCRIBE
+    // =========================
 
     const handleSubscribe = async () => {
 
         if (!isLoggedIn) {
             navigate("/login");
+            return;
+        }
+
+        // Extra frontend protection
+        if (isOwner) {
             return;
         }
 
@@ -63,12 +155,15 @@ function Channel() {
 
             setChannel((previousChannel) => ({
                 ...previousChannel,
-                subscribers: response.data.subscribers
+                subscribers:
+                    response.data.subscribers
             }));
 
             setSubscribed(true);
 
-            setMessage("Subscribed successfully");
+            setMessage(
+                "Subscribed successfully"
+            );
 
         } catch (error) {
             console.log(
@@ -83,10 +178,17 @@ function Channel() {
         }
     };
 
+
+    // =========================
+    // DELETE VIDEO
+    // =========================
+
     const handleDelete = async (videoId) => {
-        const confirmDelete = window.confirm(
-            "Are you sure you want to delete this video?"
-        );
+
+        const confirmDelete =
+            window.confirm(
+                "Are you sure you want to delete this video?"
+            );
 
         if (!confirmDelete) {
             return;
@@ -102,11 +204,12 @@ function Channel() {
                 "Video deleted successfully"
             );
 
-            setVideos((previousVideos) =>
-                previousVideos.filter(
-                    (video) =>
-                        video._id !== videoId
-                )
+            setVideos(
+                (previousVideos) =>
+                    previousVideos.filter(
+                        (video) =>
+                            video._id !== videoId
+                    )
             );
 
         } catch (error) {
@@ -122,38 +225,69 @@ function Channel() {
         }
     };
 
+
+    // =========================
+    // ERROR
+    // =========================
+
     if (error) {
         return (
             <main className="channel-page">
+
                 <p className="error-message">
                     {error}
                 </p>
+
             </main>
         );
     }
+
+
+    // =========================
+    // LOADING
+    // =========================
 
     if (!channel) {
         return (
             <main className="channel-page">
+
                 <p>Loading...</p>
+
             </main>
         );
     }
 
+
+    // =========================
+    // UI
+    // =========================
+
     return (
         <main className="channel-page">
 
-            {/* Channel information */}
+
+            {/* =========================
+                CHANNEL INFORMATION
+            ========================= */}
 
             <div className="channel-header">
 
-                <h1>
-                    {channel.channelName}
-                </h1>
+                <div
+                    className="channel-name-link"
+                    onClick={() =>
+                        navigate(`/channel/${id}`)
+                    }
+                >
+                    <h1>
+                        {channel.channelName}
+                    </h1>
+                </div>
+
 
                 <p>
                     {channel.description}
                 </p>
+
 
                 <div className="channel-subscribe-section">
 
@@ -161,26 +295,34 @@ function Channel() {
                         {channel.subscribers} subscribers
                     </p>
 
-                    <button
-                        className={
-                            subscribed
-                                ? "subscribe-button subscribed"
-                                : "subscribe-button"
-                        }
-                        onClick={handleSubscribe}
-                        disabled={subscribed}
-                    >
-                        {subscribed
-                            ? "Subscribed"
-                            : "Subscribe"}
-                    </button>
+
+                    {/* Show Subscribe only
+                        to non-owners */}
+
+                    {!isOwner && (
+                        <button
+                            className={
+                                subscribed
+                                    ? "subscribe-button subscribed"
+                                    : "subscribe-button"
+                            }
+                            onClick={handleSubscribe}
+                            disabled={subscribed}
+                        >
+                            {subscribed
+                                ? "Subscribed"
+                                : "Subscribe"}
+                        </button>
+                    )}
 
                 </div>
 
             </div>
 
 
-            {/* Message */}
+            {/* =========================
+                MESSAGE
+            ========================= */}
 
             {message && (
                 <p className="channel-message">
@@ -189,13 +331,16 @@ function Channel() {
             )}
 
 
-            {/* Videos heading */}
+            {/* =========================
+                VIDEOS HEADER
+            ========================= */}
 
             <div className="channel-video-header">
 
                 <h2>
                     Videos
                 </h2>
+
 
                 <button
                     className="create-video-button"
@@ -211,7 +356,9 @@ function Channel() {
             </div>
 
 
-            {/* Videos */}
+            {/* =========================
+                VIDEOS
+            ========================= */}
 
             <div className="video-grid">
 
@@ -234,6 +381,7 @@ function Channel() {
                                 video={video}
                             />
 
+
                             <div className="video-card-actions">
 
                                 <button
@@ -246,6 +394,7 @@ function Channel() {
                                 >
                                     ✏️ Edit
                                 </button>
+
 
                                 <button
                                     className="delete-button"

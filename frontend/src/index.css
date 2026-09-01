@@ -10,9 +10,7 @@ body {
     color: #0f0f0f;
 }
 
-/* =========================
-   HEADER
-========================= */
+/* HEADER */
 
 .header {
     height: 60px;
@@ -48,9 +46,7 @@ body {
     transform: scale(1.03);
 }
 
-/* =========================
-   MENU BUTTON
-========================= */
+/*  MENU BUTTON */
 
 .menu-button {
     font-size: 24px;
@@ -73,9 +69,7 @@ body {
     transform: scale(0.9);
 }
 
-/* =========================
-   SEARCH
-========================= */
+/* SEARCH*/
 
 .search-container {
     display: flex;
@@ -120,9 +114,7 @@ body {
     transform: scale(0.95);
 }
 
-/* =========================
-   SIGN IN / LOGOUT
-========================= */
+/* SIGN IN / LOGOUT */
 
 .signin-button {
     padding: 9px 18px;
@@ -148,9 +140,7 @@ body {
     transform: scale(0.95);
 }
 
-/* =========================
-   SIDEBAR
-========================= */
+/* SIDEBAR */
 
 .sidebar {
     position: fixed;
@@ -184,18 +174,14 @@ body {
     transform: translateX(4px);
 }
 
-/* =========================
-   HOME
-========================= */
+/*  HOME */
 
 .home {
     padding: 20px;
     animation: pageFade 0.4s ease;
 }
 
-/* =========================
-   FILTERS
-========================= */
+/*  FILTERS*/
 
 .filters {
     display: flex;
@@ -234,9 +220,7 @@ body {
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* =========================
-   VIDEO GRID
-========================= */
+/*  VIDEO GRID */
 
 .video-grid {
     display: grid;
@@ -244,9 +228,7 @@ body {
     gap: 24px;
 }
 
-/* =========================
-   VIDEO CARD
-========================= */
+/* VIDEO CARD */
 
 .video-card {
     cursor: pointer;
@@ -298,9 +280,7 @@ body {
     font-size: 14px;
 }
 
-/* =========================
-   AUTH
-========================= */
+/* AUTH */
 
 .auth-page {
     min-height: 100vh;
@@ -367,9 +347,7 @@ body {
     text-decoration: underline;
 }
 
-/* =========================
-   VIDEO PAGE
-========================= */
+/*VIDEO PAGE */
 
 .video-page {
     max-width: 1000px;
@@ -435,9 +413,7 @@ body {
     line-height: 1.6;
 }
 
-/* =========================
-   COMMENTS
-========================= */
+/*  COMMENTS */
 
 .comments-section {
     margin-top: 40px;
@@ -506,9 +482,7 @@ body {
     transform: translateY(-1px);
 }
 
-/* =========================
-   CREATE CHANNEL
-========================= */
+/*  CREATE CHANNEL*/
 
 .create-channel-page {
     max-width: 600px;
@@ -563,9 +537,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* =========================
-   CREATE / EDIT VIDEO
-========================= */
+/*  CREATE / EDIT VIDEO*/
 
 .create-video-page {
     max-width: 600px;
@@ -634,9 +606,7 @@ body {
     transform: scale(0.97);
 }
 
-/* =========================
-   CHANNEL PAGE
-========================= */
+/*  CHANNEL PAGE */
 
 .channel-page {
     max-width: 1100px;
@@ -669,9 +639,7 @@ body {
     margin-bottom: 20px;
 }
 
-/* =========================
-   ANIMATIONS
-========================= */
+/*  ANIMATIONS */
 
 @keyframes pageFade {
     from {
@@ -721,9 +689,7 @@ body {
     }
 }
 
-/* =========================
-   TABLET
-========================= */
+/* TABLET */
 
 @media (max-width: 900px) {
 
@@ -740,9 +706,7 @@ body {
     }
 }
 
-/* =========================
-   MOBILE
-========================= */
+/* MOBILE */
 
 @media (max-width: 600px) {
 
@@ -886,9 +850,7 @@ body {
     }
 }
 
-/* =========================
-   CHANNEL PAGE
-========================= */
+/*CHANNEL PAGE */
 
 .channel-page {
     max-width: 1200px;
@@ -1061,9 +1023,7 @@ body {
     }
 }
 
-/* =========================
-   HOME LOGO
-========================= */
+/*  HOME LOGO */
 
 .home-logo {
     cursor: pointer;
@@ -1075,9 +1035,7 @@ body {
 }
 
 
-/* =========================
-   CHANNEL SUBSCRIBE
-========================= */
+/* CHANNEL SUBSCRIBE */
 
 .channel-subscribe-section {
     display: flex;
@@ -1127,9 +1085,7 @@ body {
 }
 
 
-/* =========================
-   MOBILE
-========================= */
+/* MOBILE */
 
 @media (max-width: 600px) {
 
@@ -1187,9 +1143,7 @@ body {
     }
 
 }
-/* =========================
-   VIDEO CHANNEL INFO
-========================= */
+/* VIDEO CHANNEL INFO */
 
 .channel-info {
     display: flex;
@@ -1242,4 +1196,30 @@ body {
     .video-page .subscribe-button {
         padding: 9px 16px;
     }
+}
+
+/* CLICKABLE CHANNEL NAME*/
+
+.channel-name-link {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.channel-name-link h1 {
+    display: inline-block;
+    margin: 0;
+    font-size: 30px;
+    font-weight: 700;
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.channel-name-link:hover h1 {
+    color: #065fd4;
+    transform: translateX(4px);
+}
+
+.channel-name-link:active h1 {
+    transform: scale(0.98);
 }
