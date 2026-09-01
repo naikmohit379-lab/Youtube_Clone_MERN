@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 import VideoCard from "../components/VideoCard.jsx";
 
 function Channel() {
     const { id } = useParams();
+    const navigate = useNavigate();
 
     const [channel, setChannel] = useState(null);
     const [videos, setVideos] = useState([]);
@@ -18,20 +19,10 @@ function Channel() {
                 `/channels/${id}`
             );
 
-            console.log(
-                "CHANNEL RESPONSE:",
-                channelResponse.data
-            );
-
             setChannel(channelResponse.data);
 
             const videoResponse = await api.get(
                 "/videos"
-            );
-
-            console.log(
-                "ALL VIDEOS:",
-                videoResponse.data
             );
 
             const channelVideos =
@@ -40,18 +31,10 @@ function Channel() {
                         video.channel?._id === id
                 );
 
-            console.log(
-                "FILTERED CHANNEL VIDEOS:",
-                channelVideos
-            );
-
             setVideos(channelVideos);
 
         } catch (error) {
-            console.log(
-                "CHANNEL ERROR:",
-                error
-            );
+            console.log("CHANNEL ERROR:", error);
 
             setError(
                 error.response?.data?.message ||
@@ -60,12 +43,10 @@ function Channel() {
         }
     };
 
-
     // Load channel when page opens
     useEffect(() => {
         fetchChannel();
     }, [id]);
-
 
     // Delete video
     const handleDelete = async (videoId) => {
@@ -78,25 +59,15 @@ function Channel() {
         }
 
         try {
-            console.log(
-                "DELETE VIDEO ID:",
-                videoId
-            );
-
             const response = await api.delete(
                 `/videos/${videoId}`
             );
 
-            console.log(
-                "DELETE RESPONSE:",
-                response.data
-            );
-
             setMessage(
+                response.data.message ||
                 "Video deleted successfully"
             );
 
-            // Remove deleted video immediately
             setVideos((previousVideos) =>
                 previousVideos.filter(
                     (video) =>
@@ -117,22 +88,28 @@ function Channel() {
         }
     };
 
-
     if (error) {
-        return <p>{error}</p>;
+        return (
+            <main className="channel-page">
+                <p className="error-message">
+                    {error}
+                </p>
+            </main>
+        );
     }
-
 
     if (!channel) {
-        return <p>Loading...</p>;
+        return (
+            <main className="channel-page">
+                <p>Loading...</p>
+            </main>
+        );
     }
-
 
     return (
         <main className="channel-page">
 
             {/* Channel information */}
-
             <div className="channel-header">
 
                 <h1>
@@ -143,7 +120,7 @@ function Channel() {
                     {channel.description}
                 </p>
 
-                <p>
+                <p className="subscriber-count">
                     Subscribers:{" "}
                     {channel.subscribers}
                 </p>
@@ -152,32 +129,35 @@ function Channel() {
 
 
             {/* Videos heading */}
-
             <div className="channel-video-header">
 
-                <h2>Videos</h2>
+                <h2>
+                    Videos
+                </h2>
 
                 <button
+                    className="create-video-button"
                     onClick={() =>
-                        window.location.href =
+                        navigate(
                             `/channel/${id}/create-video`
+                        )
                     }
                 >
-                    Create Video
+                    + Create Video
                 </button>
 
             </div>
 
 
             {/* Success / error message */}
-
             {message && (
-                <p>{message}</p>
+                <p className="channel-message">
+                    {message}
+                </p>
             )}
 
 
             {/* Videos */}
-
             <div className="video-grid">
 
                 {videos.length === 0 ? (
@@ -190,36 +170,41 @@ function Channel() {
 
                     videos.map((video) => (
 
-                        <div key={video._id}>
+                        <div
+                            className="channel-video-card"
+                            key={video._id}
+                        >
 
                             <VideoCard
                                 video={video}
                             />
 
+                            {/* Video actions */}
+                            <div className="video-card-actions">
 
-                            {/* Edit */}
+                                <button
+                                    className="edit-button"
+                                    onClick={() =>
+                                        navigate(
+                                            `/video/${video._id}/edit`
+                                        )
+                                    }
+                                >
+                                    ✏️ Edit
+                                </button>
 
-                            <button
-                                onClick={() => {
-                                    window.location.href =
-                                        `/video/${video._id}/edit`;
-                                }}
-                            >
-                                Edit
-                            </button>
+                                <button
+                                    className="delete-button"
+                                    onClick={() =>
+                                        handleDelete(
+                                            video._id
+                                        )
+                                    }
+                                >
+                                    🗑️ Delete
+                                </button>
 
-
-                            {/* Delete */}
-
-                            <button
-                                onClick={() =>
-                                    handleDelete(
-                                        video._id
-                                    )
-                                }
-                            >
-                                Delete
-                            </button>
+                            </div>
 
                         </div>
 
