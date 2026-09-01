@@ -24,7 +24,7 @@ function Header({ onMenuClick, onSearch }) {
                     ☰
                 </button>
 
-                <h2
+                <h2 style={{color:"red"}}
                     className="home-logo"
                     onClick={() => navigate("/")}
                 >
