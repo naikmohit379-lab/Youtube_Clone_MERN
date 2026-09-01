@@ -310,7 +310,7 @@ function VideoPlayer() {
         return (
             <main className="video-page">
                 <p className="loading-message">
-                    Loading video...
+                    Loading Video...
                 </p>
             </main>
         );
