@@ -3,8 +3,7 @@ import express from "express";
 import {
     createChannel,
     getChannel,
-    subscribeChannel,
-    getMyChannel
+    subscribeChannel
 } from "../controllers/channel.controller.js";
 
 import authMiddleware from "../middleware/auth.middleware.js";
@@ -18,19 +17,12 @@ router.post(
 );
 
 router.get(
-    "/mine",
-    authMiddleware,
-    getMyChannel
-);
-
-router.get(
     "/:id",
     getChannel
 );
 
 router.put(
     "/:id/subscribe",
-    authMiddleware,
     subscribeChannel
 );
 

@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "../services/api.js";
 
 function VideoPlayer() {
     const { id } = useParams();
+    const navigate = useNavigate();
+
     const viewCounted = useRef(false);
 
     const [video, setVideo] = useState(null);
@@ -12,6 +14,10 @@ function VideoPlayer() {
     const [error, setError] = useState("");
     const [commentError, setCommentError] = useState("");
 
+    const [subscribed, setSubscribed] = useState(false);
+    const [subscribeLoading, setSubscribeLoading] = useState(false);
+
+    // Fetch video
     useEffect(() => {
         const fetchVideo = async () => {
             try {
@@ -36,36 +42,40 @@ function VideoPlayer() {
         fetchVideo();
     }, [id]);
 
-useEffect(() => {
-    if (viewCounted.current) {
-        return;
-    }
 
-    viewCounted.current = true;
-
-    const countView = async () => {
-        try {
-            const response = await api.put(
-                `/videos/${id}/view`
-            );
-
-            console.log("VIEW RESPONSE:", response.data);
-
-            setVideo((previousVideo) => ({
-                ...previousVideo,
-                views: response.data.views
-            }));
-        } catch (error) {
-            console.log(
-                "VIEW UPDATE ERROR:",
-                error.response?.data || error.message
-            );
+    // Count video view only once
+    useEffect(() => {
+        if (viewCounted.current) {
+            return;
         }
-    };
 
-    countView();
-}, [id]);
+        viewCounted.current = true;
 
+        const countView = async () => {
+            try {
+                const response = await api.put(
+                    `/videos/${id}/view`
+                );
+
+                console.log("VIEW RESPONSE:", response.data);
+
+                setVideo((previousVideo) => ({
+                    ...previousVideo,
+                    views: response.data.views
+                }));
+            } catch (error) {
+                console.log(
+                    "VIEW UPDATE ERROR:",
+                    error.response?.data || error.message
+                );
+            }
+        };
+
+        countView();
+    }, [id]);
+
+
+    // Fetch comments
     useEffect(() => {
         const fetchComments = async () => {
             try {
@@ -75,16 +85,23 @@ useEffect(() => {
 
                 setComments(response.data);
             } catch (error) {
-                console.log("FETCH COMMENTS ERROR:", error);
+                console.log(
+                    "FETCH COMMENTS ERROR:",
+                    error
+                );
             }
         };
 
         fetchComments();
     }, [id]);
 
+
+    // Like video
     const handleLike = async () => {
         try {
-            const response = await api.put(`/videos/${id}/like`);
+            const response = await api.put(
+                `/videos/${id}/like`
+            );
 
             setVideo((previousVideo) => ({
                 ...previousVideo,
@@ -96,9 +113,13 @@ useEffect(() => {
         }
     };
 
+
+    // Dislike video
     const handleDislike = async () => {
         try {
-            const response = await api.put(`/videos/${id}/dislike`);
+            const response = await api.put(
+                `/videos/${id}/dislike`
+            );
 
             setVideo((previousVideo) => ({
                 ...previousVideo,
@@ -110,6 +131,51 @@ useEffect(() => {
         }
     };
 
+
+    // Subscribe to channel
+    const handleSubscribe = async () => {
+        if (!video?.channel?._id) {
+            return;
+        }
+
+        if (subscribed) {
+            return;
+        }
+
+        try {
+            setSubscribeLoading(true);
+
+            const response = await api.put(
+                `/channels/${video.channel._id}/subscribe`
+            );
+
+            console.log(
+                "SUBSCRIBE RESPONSE:",
+                response.data
+            );
+
+            setVideo((previousVideo) => ({
+                ...previousVideo,
+                channel: {
+                    ...previousVideo.channel,
+                    subscribers: response.data.subscribers
+                }
+            }));
+
+            setSubscribed(true);
+
+        } catch (error) {
+            console.log(
+                "SUBSCRIBE ERROR:",
+                error.response?.data || error.message
+            );
+        } finally {
+            setSubscribeLoading(false);
+        }
+    };
+
+
+    // Add comment
     const handleAddComment = async (e) => {
         e.preventDefault();
 
@@ -120,10 +186,13 @@ useEffect(() => {
         try {
             setCommentError("");
 
-            const response = await api.post("/comments", {
-                video: id,
-                text: commentText.trim()
-            });
+            const response = await api.post(
+                "/comments",
+                {
+                    video: id,
+                    text: commentText.trim()
+                }
+            );
 
             setComments((previousComments) => [
                 ...previousComments,
@@ -131,8 +200,12 @@ useEffect(() => {
             ]);
 
             setCommentText("");
+
         } catch (error) {
-            console.log("ADD COMMENT ERROR:", error);
+            console.log(
+                "ADD COMMENT ERROR:",
+                error
+            );
 
             setCommentError(
                 error.response?.data?.message ||
@@ -141,6 +214,8 @@ useEffect(() => {
         }
     };
 
+
+    // Delete comment
     const handleDeleteComment = async (commentId) => {
         if (
             !window.confirm(
@@ -151,15 +226,22 @@ useEffect(() => {
         }
 
         try {
-            await api.delete(`/comments/${commentId}`);
+            await api.delete(
+                `/comments/${commentId}`
+            );
 
             setComments((previousComments) =>
                 previousComments.filter(
-                    (comment) => comment._id !== commentId
+                    (comment) =>
+                        comment._id !== commentId
                 )
             );
+
         } catch (error) {
-            console.log("DELETE COMMENT ERROR:", error);
+            console.log(
+                "DELETE COMMENT ERROR:",
+                error
+            );
 
             setCommentError(
                 error.response?.data?.message ||
@@ -168,7 +250,12 @@ useEffect(() => {
         }
     };
 
-    const handleEditComment = async (commentId, oldText) => {
+
+    // Edit comment
+    const handleEditComment = async (
+        commentId,
+        oldText
+    ) => {
         const newText = window.prompt(
             "Edit your comment:",
             oldText
@@ -193,8 +280,12 @@ useEffect(() => {
                         : comment
                 )
             );
+
         } catch (error) {
-            console.log("UPDATE COMMENT ERROR:", error);
+            console.log(
+                "UPDATE COMMENT ERROR:",
+                error
+            );
 
             setCommentError(
                 error.response?.data?.message ||
@@ -203,16 +294,33 @@ useEffect(() => {
         }
     };
 
+
     if (error) {
-        return <p>{error}</p>;
+        return (
+            <main className="video-page">
+                <p className="error-message">
+                    {error}
+                </p>
+            </main>
+        );
     }
 
+
     if (!video) {
-        return <p>Loading...</p>;
+        return (
+            <main className="video-page">
+                <p className="loading-message">
+                    Loading video...
+                </p>
+            </main>
+        );
     }
+
 
     return (
         <main className="video-page">
+
+            {/* Video Player */}
 
             <div className="player-container">
                 <video
@@ -220,31 +328,116 @@ useEffect(() => {
                     width="100%"
                     src={video.videoUrl}
                 >
-                    Your browser does not support video playback.
+                    Your browser does not support video
+                    playback.
                 </video>
             </div>
 
-            <h1>{video.title}</h1>
 
-            <p>{video.views} views</p>
+            {/* Video Title */}
 
-            <div className="video-actions">
-                <button onClick={handleLike}>
-                    👍 {video.likes}
-                </button>
+            <h1 className="video-title">
+                {video.title}
+            </h1>
 
-                <button onClick={handleDislike}>
-                    👎 {video.dislikes}
-                </button>
+
+            {/* Views + Actions */}
+
+            <div className="video-meta">
+
+                <p className="video-views">
+                    {video.views} views
+                </p>
+
+                <div className="video-actions">
+
+                    <button
+                        className="action-button"
+                        onClick={handleLike}
+                    >
+                        👍 {video.likes}
+                    </button>
+
+                    <button
+                        className="action-button"
+                        onClick={handleDislike}
+                    >
+                        👎 {video.dislikes}
+                    </button>
+
+                </div>
+
             </div>
+
+
+            {/* Channel Information */}
 
             <div className="channel-info">
-                <h3>{video.channel?.channelName}</h3>
+
+                <div
+                    className="channel-details"
+                    onClick={() =>
+                        navigate(
+                            `/channel/${video.channel?._id}`
+                        )
+                    }
+                >
+                    <div className="channel-avatar">
+                        {video.channel?.channelName
+                            ?.charAt(0)
+                            .toUpperCase()}
+                    </div>
+
+                    <div>
+                        <h3>
+                            {video.channel?.channelName}
+                        </h3>
+
+                        <p>
+                            {video.channel?.subscribers || 0}
+                            {" "}
+                            subscribers
+                        </p>
+                    </div>
+                </div>
+
+
+                <button
+                    className={
+                        subscribed
+                            ? "subscribe-button subscribed"
+                            : "subscribe-button"
+                    }
+                    onClick={handleSubscribe}
+                    disabled={
+                        subscribeLoading ||
+                        subscribed
+                    }
+                >
+                    {subscribeLoading
+                        ? "Subscribing..."
+                        : subscribed
+                            ? "Subscribed"
+                            : "Subscribe"}
+                </button>
+
             </div>
 
+
+            {/* Description */}
+
             <div className="description">
-                <p>{video.description}</p>
+
+                <h3>Description</h3>
+
+                <p>
+                    {video.description}
+                </p>
+
             </div>
+
+
+            {/* Comments */}
 
             <section className="comments-section">
 
@@ -252,45 +445,65 @@ useEffect(() => {
                     Comments ({comments.length})
                 </h2>
 
+
                 {commentError && (
-                    <p>{commentError}</p>
+                    <p className="comment-error">
+                        {commentError}
+                    </p>
                 )}
+
 
                 <form
                     className="comment-form"
                     onSubmit={handleAddComment}
                 >
+
                     <input
                         type="text"
                         placeholder="Add a comment..."
                         value={commentText}
                         onChange={(e) =>
-                            setCommentText(e.target.value)
+                            setCommentText(
+                                e.target.value
+                            )
                         }
                     />
 
                     <button type="submit">
                         Comment
                     </button>
+
                 </form>
+
 
                 <div className="comments-list">
 
                     {comments.length === 0 ? (
-                        <p>No comments yet.</p>
+
+                        <p className="no-comments">
+                            No comments yet.
+                        </p>
+
                     ) : (
+
                         comments.map((comment) => (
+
                             <div
                                 className="comment"
                                 key={comment._id}
                             >
+
                                 <strong>
-                                    {comment.user?.username || "User"}
+                                    {comment.user?.username ||
+                                        "User"}
                                 </strong>
 
-                                <p>{comment.text}</p>
+                                <p>
+                                    {comment.text}
+                                </p>
 
                                 <button
+                                    className="comment-edit"
                                     onClick={() =>
                                         handleEditComment(
                                             comment._id,
@@ -302,6 +515,7 @@ useEffect(() => {
                                 </button>
 
                                 <button
+                                    className="comment-delete"
                                     onClick={() =>
                                         handleDeleteComment(
                                             comment._id
@@ -310,8 +524,11 @@ useEffect(() => {
                                 >
                                     Delete
                                 </button>
+
                             </div>
+
                         ))
+
                     )}
 
                 </div>

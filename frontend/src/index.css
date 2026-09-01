@@ -1187,3 +1187,59 @@ body {
     }
 
 }
+/* =========================
+   VIDEO CHANNEL INFO
+========================= */
+
+.channel-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.channel-details h3 {
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+.channel-details p {
+    color: #606060;
+    font-size: 14px;
+    margin: 0;
+}
+
+.video-page .subscribe-button {
+    padding: 10px 22px;
+    border: none;
+    border-radius: 22px;
+    background: #ff0000;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.video-page .subscribe-button:hover {
+    background: #cc0000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.video-page .subscribe-button:active {
+    transform: scale(0.96);
+}
+
+@media (max-width: 600px) {
+    .channel-info {
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .video-page .subscribe-button {
+        padding: 9px 16px;
+    }
+}
