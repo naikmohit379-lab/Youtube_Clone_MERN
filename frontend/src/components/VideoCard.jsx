@@ -12,6 +12,7 @@ function VideoCard({ video }) {
             <img
                 src={video.thumbnailUrl}
                 alt={video.title}
+                loading="lazy"
             />
 
             <h3>{video.title}</h3>
