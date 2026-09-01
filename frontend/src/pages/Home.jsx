@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 import VideoCard from "../components/VideoCard.jsx";
 
 function Home() {
-
-    const outletContext = useOutletContext();
-
-    const searchText = outletContext?.searchText || "";
-
+    const { searchText } = useOutletContext();
     const [videos, setVideos] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("All");
-    const [error, setError] = useState("");
+
+    const navigate = useNavigate();
 
     const categories = [
         "All",
@@ -23,129 +20,70 @@ function Home() {
         "Education"
     ];
 
-
     useEffect(() => {
-
         const fetchVideos = async () => {
-
             try {
-
-                setError("");
-
                 const response = await api.get("/videos");
-
-                console.log(
-                    "HOME VIDEOS:",
-                    response.data
-                );
-
                 setVideos(response.data);
-
             } catch (error) {
-
-                console.log(
-                    "FETCH VIDEOS ERROR:",
-                    error
-                );
-
-                setError("Failed to load videos");
-
+                console.log(error);
             }
-
         };
 
         fetchVideos();
-
     }, []);
 
-
     const filteredVideos = videos.filter((video) => {
-
-        const title =
-            video.title?.toLowerCase() || "";
-
-        const category =
-            video.category?.toLowerCase() || "";
-
-        const search =
-            searchText.trim().toLowerCase();
-
-
-        const matchesSearch =
-            title.includes(search);
-
+        const matchesSearch = video.title
+            .toLowerCase()
+            .includes(searchText.toLowerCase());
 
         const matchesCategory =
             selectedCategory === "All" ||
-            category ===
-                selectedCategory.toLowerCase();
+            video.category === selectedCategory;
 
-
-        return (
-            matchesSearch &&
-            matchesCategory
-        );
-
+        return matchesSearch && matchesCategory;
     });
 
-
     return (
-
         <main className="home">
 
-            <div className="filters">
+            <div className="home-top">
 
-                {categories.map((category) => (
+                <div className="filters">
+                    {categories.map((category) => (
+                        <button
+                            key={category}
+                            onClick={() =>
+                                setSelectedCategory(category)
+                            }
+                        >
+                            {category}
+                        </button>
+                    ))}
+                </div>
 
-                    <button
-                        key={category}
-                        className={
-                            selectedCategory === category
-                                ? "active-filter"
-                                : ""
-                        }
-                        onClick={() =>
-                            setSelectedCategory(category)
-                        }
-                    >
-                        {category}
-                    </button>
+                <button
+                    className="create-channel-button"
+                    onClick={() => navigate("/create-channel")}
+                >
+                    + Create Channel
+                </button>
 
+            </div>
+
+            <div className="video-grid">
+
+                {filteredVideos.map((video) => (
+                    <VideoCard
+                        key={video._id}
+                        video={video}
+                    />
                 ))}
 
             </div>
 
-
-            {error && (
-                <p>{error}</p>
-            )}
-
-
-            <div className="video-grid">
-
-                {filteredVideos.length === 0 ? (
-
-                    <p>
-                        No videos found.
-                    </p>
-
-                ) : (
-
-                    filteredVideos.map((video) => (
-
-                        <VideoCard
-                            key={video._id}
-                            video={video}
-                        />
-
-                    ))
-
-                )}
-
-            </div>
-
         </main>
-
     );
 }
 
