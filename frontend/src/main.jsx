@@ -15,6 +15,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 import { AuthProvider } from "./context/AuthContext.jsx";
 import VideoPlayer from "./pages/VideoPlayer.jsx";
+import Channel from "./pages/Channel.jsx";
 
 import "./index.css";
 
@@ -41,7 +42,10 @@ const router = createBrowserRouter([
     {
         path: "/register",
         element: <Register />
-    },
+    },{
+    path: "/channel/:id",
+    element: <Channel />
+},
 
     {
         element: <ProtectedRoute />,
