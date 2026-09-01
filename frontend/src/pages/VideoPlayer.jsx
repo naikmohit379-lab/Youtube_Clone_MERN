@@ -462,10 +462,9 @@ function VideoPlayer() {
                         type="text"
                         placeholder="Add a comment..."
                         value={commentText}
+                        maxLength={500}
                         onChange={(e) =>
-                            setCommentText(
-                                e.target.value
-                            )
+                        setCommentText(e.target.value)
                         }
                     />
 
