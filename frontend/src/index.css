@@ -1232,3 +1232,10 @@ body {
     border: 1px solid #e5e5e5;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
+
+.loading-message {
+    text-align: center;
+    padding: 40px;
+    color: #606060;
+    font-size: 16px;
+}
