@@ -244,3 +244,30 @@ body {
     padding: 6px 12px;
     cursor: pointer;
 }
+.create-channel-page {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.channel-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.channel-form input,
+.channel-form textarea {
+    padding: 12px;
+    font-size: 16px;
+}
+
+.channel-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.channel-form button {
+    padding: 12px;
+    cursor: pointer;
+}
