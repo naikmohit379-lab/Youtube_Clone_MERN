@@ -8,14 +8,20 @@ function Header({ onMenuClick, onSearch }) {
     const navigate = useNavigate();
 
     const handleSearch = (e) => {
-        setSearchText(e.target.value);
-        onSearch(e.target.value);
+        const value = e.target.value;
+
+        setSearchText(value);
+
+        if (onSearch) {
+            onSearch(value);
+        }
     };
 
     return (
         <header className="header">
 
             <div className="header-left">
+
                 <button
                     className="menu-button"
                     onClick={onMenuClick}
@@ -24,34 +30,52 @@ function Header({ onMenuClick, onSearch }) {
                 </button>
 
                 <h2>YouTube Clone</h2>
+
             </div>
 
+
             <div className="search-container">
+
                 <input
                     type="text"
-                    placeholder="Search"
+                    placeholder="Search videos..."
                     value={searchText}
                     onChange={handleSearch}
                 />
 
-                <button>🔍</button>
+                <button
+                    type="button"
+                    onClick={() => {
+                        if (onSearch) {
+                            onSearch(searchText);
+                        }
+                    }}
+                >
+                    🔍
+                </button>
+
             </div>
 
+
             {isLoggedIn ? (
-    <button
-        className="signin-button"
-        onClick={logout}
-    >
-        Logout
-    </button>
-) : (
-    <button
-        className="signin-button"
-        onClick={() => navigate("/login")}
-    >
-        Sign In
-    </button>
-)}
+
+                <button
+                    className="signin-button"
+                    onClick={logout}
+                >
+                    Logout
+                </button>
+
+            ) : (
+
+                <button
+                    className="signin-button"
+                    onClick={() => navigate("/login")}
+                >
+                    Sign In
+                </button>
+
+            )}
 
         </header>
     );
