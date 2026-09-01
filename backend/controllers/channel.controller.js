@@ -3,7 +3,11 @@ import User from "../models/user.model.js";
 
 export const createChannel = async (req, res) => {
     try {
-        const { channelName, description, channelBanner } = req.body;
+        const {
+            channelName,
+            description,
+            channelBanner
+        } = req.body;
 
         if (!channelName) {
             return res.status(400).json({
@@ -11,6 +15,18 @@ export const createChannel = async (req, res) => {
             });
         }
 
+        // Check if the logged-in user already has a channel
+        const userChannel = await Channel.findOne({
+            owner: req.userId
+        });
+
+        if (userChannel) {
+            return res.status(400).json({
+                message: "You can create only one channel"
+            });
+        }
+
+        // Check if channel name already exists
         const existingChannel = await Channel.findOne({
             channelName
         });
@@ -21,6 +37,7 @@ export const createChannel = async (req, res) => {
             });
         }
 
+        // Create channel
         const channel = await Channel.create({
             channelName,
             description,
@@ -28,6 +45,7 @@ export const createChannel = async (req, res) => {
             owner: req.userId
         });
 
+        // Add channel to user's channels
         await User.findByIdAndUpdate(
             req.userId,
             {
@@ -41,6 +59,7 @@ export const createChannel = async (req, res) => {
             message: "Channel created successfully",
             channel
         });
+
     } catch (error) {
         res.status(500).json({
             message: "Failed to create channel",
@@ -62,6 +81,7 @@ export const getChannel = async (req, res) => {
         }
 
         res.status(200).json(channel);
+
     } catch (error) {
         res.status(500).json({
             message: "Failed to fetch channel",
