@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 function Channel() {
     const { id } = useParams();
     const navigate = useNavigate();
+
     const { isLoggedIn } = useAuth();
 
     const [channel, setChannel] = useState(null);
@@ -16,11 +17,7 @@ function Channel() {
     const [subscribed, setSubscribed] = useState(false);
     const [isOwner, setIsOwner] = useState(false);
 
-
-    // =========================
-    // GET LOGGED-IN USER ID
-    // =========================
-
+    // Get user ID from token
     const getUserIdFromToken = () => {
         const token = localStorage.getItem("token");
 
@@ -41,13 +38,10 @@ function Channel() {
         }
     };
 
-
-    // =========================
-    // FETCH CHANNEL
-    // =========================
-
+    // Fetch channel
     const fetchChannel = async () => {
         try {
+            // Get channel
             const channelResponse = await api.get(
                 `/channels/${id}`
             );
@@ -56,31 +50,27 @@ function Channel() {
 
             setChannel(channelData);
 
+            // Get logged-in user
+            const loggedInUserId = getUserIdFromToken();
 
-            // Get logged-in user ID
-            const loggedInUserId =
-                getUserIdFromToken();
-
-
-            // Get channel owner ID
+            // Get channel owner
             const ownerId =
                 channelData.owner?._id ||
                 channelData.owner;
 
-
-            // Check if logged-in user is owner
+            // Check if user is owner
             if (
                 loggedInUserId &&
                 ownerId &&
-                loggedInUserId === ownerId
+                loggedInUserId.toString() ===
+                ownerId.toString()
             ) {
                 setIsOwner(true);
             } else {
                 setIsOwner(false);
             }
 
-
-            // Check if user already subscribed
+            // Check subscription
             if (
                 loggedInUserId &&
                 channelData.subscriberIds
@@ -93,13 +83,14 @@ function Channel() {
                     );
 
                 setSubscribed(alreadySubscribed);
+
+            } else {
+                setSubscribed(false);
             }
 
-
             // Fetch videos
-            const videoResponse = await api.get(
-                "/videos"
-            );
+            const videoResponse =
+                await api.get("/videos");
 
             const channelVideos =
                 videoResponse.data.filter(
@@ -110,10 +101,7 @@ function Channel() {
             setVideos(channelVideos);
 
         } catch (error) {
-            console.log(
-                "CHANNEL ERROR:",
-                error
-            );
+            console.log("CHANNEL ERROR:", error);
 
             setError(
                 error.response?.data?.message ||
@@ -122,42 +110,44 @@ function Channel() {
         }
     };
 
-
-    // =========================
-    // LOAD CHANNEL
-    // =========================
-
+    // Load channel
     useEffect(() => {
         fetchChannel();
-    }, [id]);
+    }, [id, isLoggedIn]);
 
-
-    // =========================
-    // SUBSCRIBE
-    // =========================
-
+    // Subscribe
     const handleSubscribe = async () => {
 
+        // User must be logged in
         if (!isLoggedIn) {
             navigate("/login");
             return;
         }
 
-        // Extra frontend protection
+        // Owner cannot subscribe
         if (isOwner) {
             return;
         }
 
-        try {
-            const response = await api.put(
-                `/channels/${id}/subscribe`
-            );
+        // Already subscribed
+        if (subscribed) {
+            return;
+        }
 
-            setChannel((previousChannel) => ({
-                ...previousChannel,
-                subscribers:
-                    response.data.subscribers
-            }));
+        try {
+            const response =
+                await api.put(
+                    `/channels/${id}/subscribe`
+                );
+
+            // Update subscriber count
+            setChannel(
+                (previousChannel) => ({
+                    ...previousChannel,
+                    subscribers:
+                        response.data.subscribers
+                })
+            );
 
             setSubscribed(true);
 
@@ -178,11 +168,7 @@ function Channel() {
         }
     };
 
-
-    // =========================
-    // DELETE VIDEO
-    // =========================
-
+    // Delete video
     const handleDelete = async (videoId) => {
 
         const confirmDelete =
@@ -195,9 +181,10 @@ function Channel() {
         }
 
         try {
-            const response = await api.delete(
-                `/videos/${videoId}`
-            );
+            const response =
+                await api.delete(
+                    `/videos/${videoId}`
+                );
 
             setMessage(
                 response.data.message ||
@@ -225,11 +212,7 @@ function Channel() {
         }
     };
 
-
-    // =========================
-    // ERROR
-    // =========================
-
+    // Show error
     if (error) {
         return (
             <main className="channel-page">
@@ -242,36 +225,26 @@ function Channel() {
         );
     }
 
-
-    // =========================
-    // LOADING
-    // =========================
-
+    // Show loading
     if (!channel) {
         return (
             <main className="channel-page">
 
-                <p>Loading...</p>
+                <p>
+                    Loading...
+                </p>
 
             </main>
         );
     }
 
-
-    // =========================
-    // UI
-    // =========================
-
     return (
         <main className="channel-page">
 
-
-            {/* =========================
-                CHANNEL INFORMATION
-            ========================= */}
-
+            {/* Channel information */}
             <div className="channel-header">
 
+                {/* Channel name */}
                 <div
                     className="channel-name-link"
                     onClick={() =>
@@ -283,23 +256,34 @@ function Channel() {
                     </h1>
                 </div>
 
-
+                {/* Description */}
                 <p>
                     {channel.description}
                 </p>
 
-
+                {/* Subscribers */}
                 <div className="channel-subscribe-section">
 
+                    {/* Subscriber count */}
                     <p className="subscriber-count">
-                        {channel.subscribers} subscribers
+                        {channel.subscribers || 0}
+                        {" "}
+                        subscribers
                     </p>
 
+                    {/* Owner button */}
+                    {isOwner ? (
 
-                    {/* Show Subscribe only
-                        to non-owners */}
+                        <button
+                            className="subscribe-button own-channel-button"
+                            disabled
+                        >
+                            Your Channel
+                        </button>
 
-                    {!isOwner && (
+                    ) : (
+
+                        /* Subscribe button */
                         <button
                             className={
                                 subscribed
@@ -313,35 +297,28 @@ function Channel() {
                                 ? "Subscribed"
                                 : "Subscribe"}
                         </button>
+
                     )}
 
                 </div>
 
             </div>
 
-
-            {/* =========================
-                MESSAGE
-            ========================= */}
-
+            {/* Show message */}
             {message && (
                 <p className="channel-message">
                     {message}
                 </p>
             )}
 
-
-            {/* =========================
-                VIDEOS HEADER
-            ========================= */}
-
+            {/* Videos heading */}
             <div className="channel-video-header">
 
                 <h2>
                     Videos
                 </h2>
 
-
+                {/* Create video */}
                 <button
                     className="create-video-button"
                     onClick={() =>
@@ -355,11 +332,7 @@ function Channel() {
 
             </div>
 
-
-            {/* =========================
-                VIDEOS
-            ========================= */}
-
+            {/* Videos */}
             <div className="video-grid">
 
                 {videos.length === 0 ? (
@@ -381,9 +354,10 @@ function Channel() {
                                 video={video}
                             />
 
-
+                            {/* Video actions */}
                             <div className="video-card-actions">
 
+                                {/* Edit video */}
                                 <button
                                     className="edit-button"
                                     onClick={() =>
@@ -395,7 +369,7 @@ function Channel() {
                                     ✏️ Edit
                                 </button>
 
-
+                                {/* Delete video */}
                                 <button
                                     className="delete-button"
                                     onClick={() =>
