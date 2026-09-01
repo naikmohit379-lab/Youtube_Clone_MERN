@@ -1223,3 +1223,12 @@ body {
 .channel-name-link:active h1 {
     transform: scale(0.98);
 }
+
+.channel-header {
+    padding: 30px;
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, #ffffff, #f5f5f5);
+    border-radius: 16px;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
